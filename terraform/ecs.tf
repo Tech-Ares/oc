@@ -27,9 +27,13 @@ data "aws_ami" "ecs_optimized_ami" {
 resource "aws_instance" "ecs_container_instance" {
   ami           = data.aws_ami.ecs_optimized_ami.id # 使用 ECS 優化 AMI
   instance_type = "t3.small"                        # 實例類型，根據需求調整
-  subnet_id     = aws_subnet.private_subnets[0].id  # 將實例放入其中一個私有子網
+  # *** 修正點 1: 將 subnet_id 指向 public_subnet ***
+  subnet_id     = aws_subnet.public_subnet.id
   vpc_security_group_ids = [aws_security_group.app_sg.id] # 應用安全組
   iam_instance_profile   = aws_iam_instance_profile.ecs_instance_profile.name # 附著 IAM 實例設定檔
+
+  # *** 修正點 2: 讓 EC2 實例自動獲取公有 IP ***
+  associate_public_ip_address = true
 
   # User Data 腳本：在 EC2 啟動時安裝 Docker 並配置 ECS 代理
   user_data = <<-EOF
@@ -107,9 +111,11 @@ resource "aws_ecs_service" "app_service" {
 
   # 由於 Task Definition 使用了 awsvpc 網路模式，這裡仍然需要網路配置
   network_configuration {
-    subnets         = aws_subnet.private_subnets.*.id # 任務將運行在私有子網中
-    security_groups = [aws_security_group.app_sg.id]  # 應用安全組
-    assign_public_ip = false # 任務通常不需要公網 IP，透過內部網路訪問或 Load Balancer
+    # *** 修正點 3: 將 subnets 指向 public_subnet ***
+    subnets         = [aws_subnet.public_subnet.id]
+    security_groups = [aws_security_group.app_sg.id]
+    # *** 修正點 4: 讓 ECS 任務自動獲取公有 IP ***
+    assign_public_ip = true
   }
 
   deployment_controller {
