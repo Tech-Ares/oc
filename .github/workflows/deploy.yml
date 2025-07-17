@@ -10,7 +10,7 @@ on:
 env:
   AWS_REGION: ap-northeast-1
   ECR_REPO_NAME: my-app      # 你的 ECR repository 名稱，三環境共用也可分開
-  TERRAFORM_DIR: muilt-env-change/terraform
+  TERRAFORM_DIR: terraform
 
 jobs:
   build_and_deploy:
