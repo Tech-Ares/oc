@@ -8,7 +8,7 @@ terraform {
   }
 
   backend "s3" {
-    bucket = "your-terraform-state-bucket"
+    bucket = "s56405112"
     key    = "ecs-service/terraform.tfstate" # 修正為靜態路徑
     region = "ap-northeast-1"
   }
