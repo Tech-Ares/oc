@@ -58,9 +58,11 @@ jobs:
         uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: 1.5.7  # 你要的版本
+
+      
           
       - name: Initialize Terraform
-        run: terraform init
+        run: terraform init -backend-config=backend.conf
         working-directory: ${{ env.TERRAFORM_DIR }}   # ✅ 只這裡進 terraform 目錄
 
       - name: Select or create Terraform workspace
