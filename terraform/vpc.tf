@@ -64,7 +64,7 @@ resource "aws_security_group" "app_sg" {
     to_port     = 8080
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"] # 允許所有 IP 訪問 (根據你的需求限制來源 IP 範圍)
-    description = "Allow HTTP traffic on port 8080" # *** 已修正為英文描述 ***
+    description = "Allow HTTP traffic on port 8080"
   }
 
   # 允許所有出站流量
@@ -79,18 +79,3 @@ resource "aws_security_group" "app_sg" {
     Name = "my-app-sg-${var.aws_region}"
   }
 }
-
-# 資源：彈性 IP (EIP，用於 NAT Gateway)
-# 注意：此資源在簡化版 VPC 中不再直接使用於 NAT Gateway，
-# 但如果你的 EC2 實例需要固定公有 IP，則可以保留並關聯
-# 為了避免錯誤，我將其移除，因為簡化版不再需要 NAT Gateway
-# 如果你需要為 EC2 實例分配固定 IP，請使用 aws_eip_association
-/*
-resource "aws_eip" "nat_gateway_eip" {
-  # 將 'vpc = true' 改為 'domain = "vpc"'
-  domain = "vpc" # 修正棄用警告
-  tags = {
-    Name = "my-app-nat-eip-${var.aws_region}"
-  }
-}
-*/
