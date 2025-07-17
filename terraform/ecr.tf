@@ -22,3 +22,5 @@ resource "aws_ecr_repository" "app_ecr" {
 #    terraform import aws_ecr_repository.app_ecr <你的AWS帳戶ID>.dkr.ecr.<你的區域>.amazonaws.com/my-app
 #    例如：terraform import aws_ecr_repository.app_ecr 123456789012.dkr.ecr.ap-northeast-1.amazonaws.com/my-app
 #    執行 import 後，再次運行 terraform plan，應該會顯示沒有任何變更。
+
+
