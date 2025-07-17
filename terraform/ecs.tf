@@ -31,8 +31,9 @@ data "aws_ami" "ecs_optimized_ami" {
 
 # 資源：EC2 容器實例 (將運行 Docker 容器的 EC2 虛擬機)
 resource "aws_instance" "ecs_container_instance" {
-  # *** 請將 ami 替換為你在 AWS 控制台查到的實際 AMI ID！ ***
-  ami           = "ami-xxxxxxxxxxxxxxxxx" # <-- 範例：ami-0abcdef1234567890
+  # *** 重要：請將 ami 替換為你在 AWS 控制台查到的實際 AMI ID！ ***
+  # 範例：ami = "ami-0abcdef1234567890"
+  ami           = "ami-xxxxxxxxxxxxxxxxx" # <-- 請務必替換這個佔位符為你在 ap-northeast-1 區域查到的真實 AMI ID！
   instance_type = "t3.small"                        # 實例類型，根據需求調整
   subnet_id     = aws_subnet.public_subnet.id       # 指向公有子網
   vpc_security_group_ids = [aws_security_group.app_sg.id] # 應用安全組
@@ -68,7 +69,8 @@ resource "aws_ecs_task_definition" "app_task" {
   container_definitions = jsonencode([
     {
       name  = "my-app-container"
-      image = "${aws_ecr_repository.app_ecr.repository_url}:${var.image_tag}" # 引用 ECR 映像檔和傳入的 image_tag
+      # *** 修正點：將 aws_ecr_repository.app_ecr 改為 data.aws_ecr_repository.app_ecr ***
+      image = "${data.aws_ecr_repository.app_ecr.repository_url}:${var.image_tag}" # 引用 ECR 映像檔和傳入的 image_tag
       portMappings = [
         {
           containerPort = 8080 # 你的應用程式監聽的 Port
