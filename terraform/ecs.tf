@@ -103,7 +103,8 @@ resource "aws_ecs_task_definition" "app_task" {
 # 資源：ECS 服務 (Service，確保任務持續運行)
 resource "aws_ecs_service" "app_service" {
   name            = "my-app-ecs-service-${var.aws_region}"
-  cluster_arn     = aws_ecs_cluster.my_ec2_cluster.arn
+  # 將 cluster_arn 改為 cluster
+  cluster         = aws_ecs_cluster.my_ec2_cluster.arn # *** 修正點：將 cluster_arn 改為 cluster ***
   task_definition = aws_ecs_task_definition.app_task.arn
   desired_count   = 1 # 你希望運行的任務實例數量
 
