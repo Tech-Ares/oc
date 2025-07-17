@@ -1,3 +1,5 @@
+# versions.tf
+
 terraform {
   required_version = ">= 1.0.0" # 根據你的 Terraform CLI 版本調整
   required_providers {
