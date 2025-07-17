@@ -62,8 +62,8 @@ jobs:
       
           
       - name: Initialize Terraform
-        run: terraform init -backend-config=backend.conf
-        working-directory: ${{ env.TERRAFORM_DIR }}   # ✅ 只這裡進 terraform 目錄
+        run: terraform init -backend-config="bucket=s56405112" -backend-config="key=my_project.tfstate" -backend-config="region=ap-northeast-1"
+        working-directory: ${{ env.TERRAFORM_DIR }} # ✅ 只這裡進 terraform 目錄
 
       - name: Select or create Terraform workspace
         run: |
