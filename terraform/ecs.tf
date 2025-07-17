@@ -60,17 +60,18 @@ resource "aws_instance" "ecs_container_instance" {
 # 資源：ECS 任務定義 (Task Definition，Docker 容器的藍圖)
 resource "aws_ecs_task_definition" "app_task" {
   family                   = "my-app-task-definition-${var.aws_region}"
-  # 對於 EC2 啟動類型，CPU 和 Memory 是容器的軟性限制，不是強制分配
-  # cpu                      = "256"
-  # memory                   = "512"
+  # 對於 EC2 啟動類型，CPU 和 Memory 是容器的軟性限制，但仍需指定
+  cpu                      = "256" # *** 已取消註解並設定 CPU ***
+  memory                   = "512" # *** 已取消註解並設定 Memory ***
   network_mode             = "awsvpc" # 推薦使用 awsvpc 模式，提供更好的網路隔離
   requires_compatibilities = ["EC2"]  # 指定使用 EC2 啟動類型
 
   container_definitions = jsonencode([
     {
       name  = "my-app-container"
-      # *** 修正點：將 aws_ecr_repository.app_ecr 改為 data.aws_ecr_repository.app_ecr ***
       image = "${data.aws_ecr_repository.app_ecr.repository_url}:${var.image_tag}" # 引用 ECR 映像檔和傳入的 image_tag
+      cpu    = 256 
+      memory = 512 
       portMappings = [
         {
           containerPort = 8080 # 你的應用程式監聽的 Port
