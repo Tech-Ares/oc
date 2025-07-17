@@ -43,4 +43,39 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
-      - n
+      - name: Build Docker image
+        run: |
+          IMAGE_TAG=${{ github.sha }}
+          docker build -t $ECR_REPO_NAME:$IMAGE_TAG .
+          docker tag $ECR_REPO_NAME:$IMAGE_TAG ${{ steps.login-ecr.outputs.registry }}/${ECR_REPO_NAME}:$IMAGE_TAG
+
+      - name: Push Docker image to ECR
+        run: |
+          IMAGE_TAG=${{ github.sha }}
+          docker push ${{ steps.login-ecr.outputs.registry }}/${ECR_REPO_NAME}:$IMAGE_TAG
+
+      - name: Initialize Terraform
+        run: terraform init
+        working-directory: ${{ env.TERRAFORM_DIR }}   # ✅ 只這裡進 terraform 目錄
+
+      - name: Select or create Terraform workspace
+        run: |
+          BRANCH_NAME=${{ github.ref_name }}
+          terraform workspace select $BRANCH_NAME || terraform workspace new $BRANCH_NAME
+        working-directory: ${{ env.TERRAFORM_DIR }}
+
+      - name: Terraform plan
+        run: |
+          terraform plan \
+          -var="aws_access_key=${{ secrets.AWS_ACCESS_KEY_ID }}" \
+          -var="aws_secret_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
+          -var="image_tag=${{ github.sha }}"
+        working-directory: ${{ env.TERRAFORM_DIR }}
+
+      - name: Terraform apply
+        run: |
+          terraform apply -auto-approve \
+          -var="aws_access_key=${{ secrets.AWS_ACCESS_KEY_ID }}" \
+          -var="aws_secret_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
+          -var="image_tag=${{ github.sha }}"
+        working-directory: ${{ env.TERRAFORM_DIR }}
