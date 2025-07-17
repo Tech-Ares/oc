@@ -33,7 +33,7 @@ data "aws_ami" "ecs_optimized_ami" {
 resource "aws_instance" "ecs_container_instance" {
   # *** 重要：請將 ami 替換為你在 AWS 控制台查到的實際 AMI ID！ ***
   # 範例：ami = "ami-0abcdef1234567890"
-  ami           = "ami-000adda8447a6d4da" # <-- 請務必替換這個佔位符為你在 ap-northeast-1 區域查到的真實 AMI ID！
+  ami           = "ami-0016e0f5537d212b2" # <-- 請務必替換這個佔位符為你在 ap-northeast-1 區域查到的真實 AMI ID！
   instance_type = "t3.small"                        # 實例類型，根據需求調整
   subnet_id     = aws_subnet.public_subnet.id       # 指向公有子網
   vpc_security_group_ids = [aws_security_group.app_sg.id] # 應用安全組
