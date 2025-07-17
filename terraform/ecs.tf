@@ -61,8 +61,8 @@ resource "aws_instance" "ecs_container_instance" {
 resource "aws_ecs_task_definition" "app_task" {
   family                   = "my-app-task-definition-${var.aws_region}"
   # 對於 EC2 啟動類型，CPU 和 Memory 是容器的軟性限制，但仍需指定
-  cpu                      = "256" # *** 已取消註解並設定 CPU ***
-  memory                   = "512" # *** 已取消註解並設定 Memory ***
+  cpu                      = "256" # 已取消註解並設定 CPU
+  memory                   = "512" # 已取消註解並設定 Memory
   network_mode             = "awsvpc" # 推薦使用 awsvpc 模式，提供更好的網路隔離
   requires_compatibilities = ["EC2"]  # 指定使用 EC2 啟動類型
 
@@ -70,8 +70,8 @@ resource "aws_ecs_task_definition" "app_task" {
     {
       name  = "my-app-container"
       image = "${data.aws_ecr_repository.app_ecr.repository_url}:${var.image_tag}" # 引用 ECR 映像檔和傳入的 image_tag
-      cpu    = 256 
-      memory = 512 
+      cpu    = 256
+      memory = 512
       portMappings = [
         {
           containerPort = 8080 # 你的應用程式監聽的 Port
@@ -121,7 +121,8 @@ resource "aws_ecs_service" "app_service" {
   network_configuration {
     subnets         = [aws_subnet.public_subnet.id] # 任務將運行在公有子網中
     security_groups = [aws_security_group.app_sg.id]  # 應用安全組
-    assign_public_ip = true # 讓 ECS 任務自動獲取公有 IP
+    # *** 修正點：移除 assign_public_ip = true ***
+    # assign_public_ip = true # 此參數不支援 EC2 啟動類型與 awsvpc 網路模式組合
   }
 
   deployment_controller {
