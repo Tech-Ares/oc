@@ -12,7 +12,8 @@ output "ecs_service_name" {
 
 output "ecr_repository_url" {
   description = "ECR 儲存庫 URL"
-  value       = aws_ecr_repository.app_ecr.repository_url
+  # 修正點：將 aws_ecr_repository.app_ecr 改為 data.aws_ecr_repository.app_ecr
+  value       = data.aws_ecr_repository.app_ecr.repository_url
 }
 
 output "ecs_task_definition_arn" {
