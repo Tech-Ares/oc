@@ -1,3 +1,4 @@
+# variables.tf
 variable "aws_access_key" {
   description = "AWS access key"
   type        = string
@@ -9,7 +10,6 @@ variable "aws_secret_key" {
 }
 
 variable "image_tag" {
-  description = "Docker image tag"
+  description = "Docker image tag to deploy"
   type        = string
 }
-
