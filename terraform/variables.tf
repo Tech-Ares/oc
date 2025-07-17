@@ -11,8 +11,6 @@ variable "image_tag" {
   type        = string
 }
 
-# 由於你的 GitHub Actions 工作流程明確透過 -var 傳入 AWS 憑證，這裡必須定義這些變數
-# 雖然 configure-aws-credentials 動作會設定環境變數，但為了與你的 workflow 匹配，這裡保留
 variable "aws_access_key" {
   description = "AWS Access Key ID (敏感資訊)"
   type        = string
