@@ -1,0 +1,82 @@
+name: Build, Push Docker & Deploy ECS with Terraform
+
+on:
+  push:
+    branches:
+      - dev
+      - staging
+      - main  # production 分支
+
+env:
+  AWS_REGION: ap-northeast-1
+  ECR_REPO_NAME: my-app      # 你的 ECR repository 名稱，三環境共用也可分開
+  TERRAFORM_DIR: muilt-env-change/terraform
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ${{ env.TERRAFORM_DIR }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Grant execute permission for Gradle wrapper
+        run: chmod +x ./gradlew
+
+      - name: Build with Gradle
+        run: ./gradlew clean build
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build Docker image
+        run: |
+          IMAGE_TAG=${{ github.sha }}
+          docker build -t $ECR_REPO_NAME:$IMAGE_TAG ../../
+          docker tag $ECR_REPO_NAME:$IMAGE_TAG ${{ steps.login-ecr.outputs.registry }}/${ECR_REPO_NAME}:$IMAGE_TAG
+
+      - name: Push Docker image to ECR
+        run: |
+          IMAGE_TAG=${{ github.sha }}
+          docker push ${{ steps.login-ecr.outputs.registry }}/${ECR_REPO_NAME}:$IMAGE_TAG
+
+      - name: Initialize Terraform
+        run: terraform init
+
+      - name: Select or create Terraform workspace
+        run: |
+          BRANCH_NAME=${{ github.ref_name }}
+          terraform workspace select $BRANCH_NAME || terraform workspace new $BRANCH_NAME
+
+      - name: Terraform plan
+        run: |
+          terraform plan \
+          -var="aws_access_key=${{ secrets.AWS_ACCESS_KEY_ID }}" \
+          -var="aws_secret_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
+          -var="image_tag=${{ github.sha }}"
+
+      - name: Terraform apply
+        run: |
+          terraform apply -auto-approve \
+          -var="aws_access_key=${{ secrets.AWS_ACCESS_KEY_ID }}" \
+          -var="aws_secret_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
+          -var="image_tag=${{ github.sha }}"
+

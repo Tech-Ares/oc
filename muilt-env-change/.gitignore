@@ -1,0 +1,11 @@
+/build/
+/build.gradle/
+/.gradle
+*.class
+*.jar
+*.zip
+.gradle/
+.idea/
+*.iml
+*.log
+

@@ -1,0 +1,19 @@
+terraform init
+
+# 新增並切換到 dev 工作區
+terraform workspace new dev
+
+# 變數指定為 dev 帳戶憑證
+terraform apply \
+  -var="aws_access_key=AKIA_DEV_..." \
+  -var="aws_secret_key=SECRET_DEV_..." \
+  -var="image_tag=abc123"
+
+# 切換到 staging 工作區
+terraform workspace select staging
+
+terraform apply \
+  -var="aws_access_key=AKIA_STAGE_..." \
+  -var="aws_secret_key=SECRET_STAGE_..." \
+  -var="image_tag=abc123"
+
